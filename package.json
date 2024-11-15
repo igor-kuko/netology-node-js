@@ -6,6 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "heads-or-tails": "task-01.js",
+    "head-or-tails-logs": "task-02.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC"
