@@ -10,7 +10,6 @@ const log = {
   win: 0,
   lost: 0
 };
-const writeStream = fs.createWriteStream(path.join(__dirname, `${logFileName}.json`));
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -22,16 +21,43 @@ rl.prompt();
 
 rl
   .on('line', answer => {
-  const value = Math.floor(Math.random() * 2) + 1;
+    const value = Math.floor(Math.random() * 2) + 1;
 
-  log.gamesPlayed++;
+    log.gamesPlayed++;
 
-  if (Number(answer) === value) {
-    console.log('Верно');
-    log.win++
-  } else {
-    console.log('Неверно')
-    log.lost++;
-  }
-})
-  .on('close', () => writeStream.write(JSON.stringify(log)));
+    if (Number(answer) === value) {
+      console.log('Верно');
+      log.win++;
+    } else {
+      console.log('Неверно');
+      log.lost++;
+    }
+  })
+  .on('close', () => {
+    const readStream = fs.createReadStream(path.join(__dirname, `${logFileName}.json`));
+    let tmpData = '';
+
+    readStream
+      .on('data', chunk => tmpData += chunk.toString())
+      .on('close', () => {
+        const writeStream = fs.createWriteStream(path.join(__dirname, `${logFileName}.json`));
+        const oldLog = tmpData ? JSON.parse(tmpData) : {};
+        const newLog = {
+          gamesPlayed: log.gamesPlayed + (oldLog.gamesPlayed ?? 0),
+          win: log.win + (oldLog.win ?? 0),
+          lost: log.lost + (oldLog.lost ?? 0)
+        };
+
+        readStream.destroy();
+
+        writeStream.write(JSON.stringify(newLog));
+        writeStream.end();
+      })
+      .on('error', error => {
+        if (error.code === 'ENOENT') {
+          readStream.destroy();
+        } else {
+          console.log(error);
+        }
+      });
+  });

@@ -8,7 +8,7 @@
   },
   "bin": {
     "heads-or-tails": "task-01.js",
-    "head-or-tails-logs": "task-02.js"
+    "heads-or-tails-logs": "task-02.js"
   },
   "keywords": [],
   "author": "",
